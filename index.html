@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        margin: 0;
+      }
+      #array-container {
+        display: flex;
+        align-items: flex-end;
+        height: 400px;
+      }
+      .bar {
+        width: 30px;
+        margin: 2px;
+        background-color: teal;
+      }
+      button {
+        margin: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <button onclick="generateArray()">Generate Array</button>
+      <button onclick="bubbleSort()">Bubble Sort</button>
+      <button onclick="selectionSort()">Selection Sort</button>
+      <button onclick="insertionSort()">Insertion Sort</button>
+      <button onclick="mergeSortWrapper()">Merge Sort</button>
+      <button onclick="quickSortWrapper()">Quick Sort</button>
+      <div id="array-container"></div>
+    </div>
+
+    <script>
+      const container = document.getElementById("array-container");
+
+      function generateArray() {
+        container.innerHTML = "";
+        let array = [];
+        for (let i = 0; i < 20; i++) {
+          array.push(Math.floor(Math.random() * 300) + 20);
+        }
+        array.forEach((value) => {
+          const bar = document.createElement("div");
+          bar.classList.add("bar");
+          bar.style.height = `${value}px`;
+          container.appendChild(bar);
+        });
+      }
+
+      async function bubbleSort() {
+        let bars = document.getElementsByClassName("bar");
+        for (let i = 0; i < bars.length - 1; i++) {
+          for (let j = 0; j < bars.length - i - 1; j++) {
+            bars[j].style.backgroundColor = "red";
+            bars[j + 1].style.backgroundColor = "red";
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            if (
+              parseInt(bars[j].style.height) >
+              parseInt(bars[j + 1].style.height)
+            ) {
+              let temp = bars[j].style.height;
+              bars[j].style.height = bars[j + 1].style.height;
+              bars[j + 1].style.height = temp;
+            }
+
+            bars[j].style.backgroundColor = "teal";
+            bars[j + 1].style.backgroundColor = "teal";
+          }
+          bars[bars.length - i - 1].style.backgroundColor = "green";
+        }
+        bars[0].style.backgroundColor = "green";
+      }
+
+      async function selectionSort() {
+        let bars = document.getElementsByClassName("bar");
+        for (let i = 0; i < bars.length; i++) {
+          let minIndex = i;
+          bars[minIndex].style.backgroundColor = "red";
+          for (let j = i + 1; j < bars.length; j++) {
+            bars[j].style.backgroundColor = "yellow";
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            if (
+              parseInt(bars[j].style.height) <
+              parseInt(bars[minIndex].style.height)
+            ) {
+              bars[minIndex].style.backgroundColor = "teal";
+              minIndex = j;
+              bars[minIndex].style.backgroundColor = "red";
+            } else {
+              bars[j].style.backgroundColor = "teal";
+            }
+          }
+          let temp = bars[i].style.height;
+          bars[i].style.height = bars[minIndex].style.height;
+          bars[minIndex].style.height = temp;
+          bars[minIndex].style.backgroundColor = "teal";
+          bars[i].style.backgroundColor = "green";
+        }
+      }
+
+      async function insertionSort() {
+        let bars = document.getElementsByClassName("bar");
+        for (let i = 1; i < bars.length; i++) {
+          let key = bars[i].style.height;
+          let j = i - 1;
+          bars[i].style.backgroundColor = "red";
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          while (j >= 0 && parseInt(bars[j].style.height) > parseInt(key)) {
+            bars[j + 1].style.height = bars[j].style.height;
+            bars[j].style.backgroundColor = "yellow";
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            bars[j].style.backgroundColor = "teal";
+            j = j - 1;
+          }
+          bars[j + 1].style.height = key;
+          bars[i].style.backgroundColor = "teal";
+        }
+        for (let i = 0; i < bars.length; i++) {
+          bars[i].style.backgroundColor = "green";
+        }
+      }
+
+      async function mergeSortWrapper() {
+        let bars = Array.from(document.getElementsByClassName("bar"));
+        await mergeSort(bars, 0, bars.length - 1);
+        for (let i = 0; i < bars.length; i++) {
+          bars[i].style.backgroundColor = "green";
+        }
+      }
+
+      async function mergeSort(bars, l, r) {
+        if (l >= r) {
+          return;
+        }
+        const m = l + Math.floor((r - l) / 2);
+        await mergeSort(bars, l, m);
+        await mergeSort(bars, m + 1, r);
+        await merge(bars, l, m, r);
+      }
+
+      async function merge(bars, l, m, r) {
+        let n1 = m - l + 1;
+        let n2 = r - m;
+        let L = [];
+        let R = [];
+        for (let i = 0; i < n1; i++) {
+          L[i] = bars[l + i].style.height;
+        }
+        for (let j = 0; j < n2; j++) {
+          R[j] = bars[m + 1 + j].style.height;
+        }
+        let i = 0,
+          j = 0,
+          k = l;
+        while (i < n1 && j < n2) {
+          bars[k].style.backgroundColor = "red";
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          if (parseInt(L[i]) <= parseInt(R[j])) {
+            bars[k].style.height = L[i];
+            i++;
+          } else {
+            bars[k].style.height = R[j];
+            j++;
+          }
+          bars[k].style.backgroundColor = "green";
+          k++;
+        }
+        while (i < n1) {
+          bars[k].style.backgroundColor = "red";
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          bars[k].style.height = L[i];
+          bars[k].style.backgroundColor = "green";
+          i++;
+          k++;
+        }
+        while (j < n2) {
+          bars[k].style.backgroundColor = "red";
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          bars[k].style.height = R[j];
+          bars[k].style.backgroundColor = "green";
+          j++;
+          k++;
+        }
+      }
+
+      async function quickSortWrapper() {
+        let bars = Array.from(document.getElementsByClassName("bar"));
+        await quickSort(bars, 0, bars.length - 1);
+        for (let i = 0; i < bars.length; i++) {
+          bars[i].style.backgroundColor = "green";
+        }
+      }
+
+      async function quickSort(bars, low, high) {
+        if (low < high) {
+          let pi = await partition(bars, low, high);
+          await quickSort(bars, low, pi - 1);
+          await quickSort(bars, pi + 1, high);
+        }
+      }
+
+      async function partition(bars, low, high) {
+        let pivot = bars[high].style.height;
+        let i = low - 1;
+        bars[high].style.backgroundColor = "red";
+        for (let j = low; j <= high - 1; j++) {
+          bars[j].style.backgroundColor = "yellow";
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          if (parseInt(bars[j].style.height) < parseInt(pivot)) {
+            i++;
+            let temp = bars[i].style.height;
+            bars[i].style.height = bars[j].style.height;
+            bars[j].style.height = temp;
+          }
+          bars[j].style.backgroundColor = "teal";
+        }
+        let temp = bars[i + 1].style.height;
+        bars[i + 1].style.height = bars[high].style.height;
+        bars[high].style.height = temp;
+        bars[high].style.backgroundColor = "teal";
+        bars[i + 1].style.backgroundColor = "green";
+        return i + 1;
+      }
+    </script>
+  </body>
+</html>
